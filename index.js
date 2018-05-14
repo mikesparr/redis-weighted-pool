@@ -90,16 +90,15 @@ var RedisWeightedPool = (function () {
             for (var i = 0; i < weight; i++) {
                 entries.push(key);
             }
-            _this.client.multi()
+            (_a = _this.client.multi()
                 .zadd([channel, _this.PEER_TYPE].join(":"), weight, key)
-                .lrem([channel, _this.ENTRY_TYPE].join(":"), 0, key)
-                .rpush([channel, _this.ENTRY_TYPE].join(":"), entries)
-                .exec(function (err, replies) {
+                .lrem([channel, _this.ENTRY_TYPE].join(":"), 0, key)).lpush.apply(_a, [[channel, _this.ENTRY_TYPE].join(":")].concat(entries)).exec(function (err, replies) {
                 if (err !== null) {
                     reject(err);
                 }
                 resolve();
             });
+            var _a;
         });
     };
     RedisWeightedPool.prototype.removePeer = function (channel, key) {
@@ -129,14 +128,17 @@ var RedisWeightedPool = (function () {
                 throw new TypeError("Channel parameter must be a string");
             }
             var chosenIndex = 0;
-            _this.client.multi()
-                .llen([channel, _this.ENTRY_TYPE].join(":"), function (err, reply) {
-                chosenIndex = Math.floor(Math.random() * reply);
-            })
-                .lindex([channel, _this.ENTRY_TYPE].join(":"), chosenIndex)
-                .exec(function (err, replies) {
-                console.log({ err: err, replies: replies });
-                resolve(replies[1]);
+            _this.client.llen([channel, _this.ENTRY_TYPE].join(":"), function (lenError, sumWeights) {
+                if (lenError !== null) {
+                    reject(lenError);
+                }
+                chosenIndex = Math.floor(Math.random() * sumWeights);
+                _this.client.lindex([channel, _this.ENTRY_TYPE].join(":"), chosenIndex, function (indexError, entry) {
+                    if (indexError !== null) {
+                        reject(indexError);
+                    }
+                    resolve(entry);
+                });
             });
         });
     };

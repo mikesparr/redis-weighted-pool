@@ -109,7 +109,7 @@ export class RedisWeightedPool implements IWeightedPool<string> {
             }
 
             // build array of keys of length (weight)
-            const entries = [];
+            const entries: string[] = [];
             for (let i = 0; i < weight; i ++) {
                 entries.push(key);
             }
@@ -118,7 +118,7 @@ export class RedisWeightedPool implements IWeightedPool<string> {
             this.client.multi()
                 .zadd([channel, this.PEER_TYPE].join(":"), weight, key)
                 .lrem([channel, this.ENTRY_TYPE].join(":"), 0, key)
-                .rpush([channel, this.ENTRY_TYPE].join(":"), entries)
+                .lpush([channel, this.ENTRY_TYPE].join(":"), ...entries)
                 .exec((err: Error, replies: any) => {
                     if (err !== null) {
                         reject(err);
@@ -160,16 +160,26 @@ export class RedisWeightedPool implements IWeightedPool<string> {
 
             // get length of entries (sum of weights), choose random index
             let chosenIndex: number = 0;
-            this.client.multi()
-                .llen([channel, this.ENTRY_TYPE].join(":"), (err: Error, reply: number) => {
+            this.client.llen(
+                [channel, this.ENTRY_TYPE].join(":"),
+                (lenError: Error, sumWeights: number) => {
+                    if (lenError !== null) {
+                        reject(lenError);
+                    }
+
                     // get random integer between 0 and bounds to choose index
-                    chosenIndex = Math.floor(Math.random() * reply);
-                })
-                .lindex([channel, this.ENTRY_TYPE].join(":"), chosenIndex)
-                .exec((err: Error, replies: any) => {
-                    console.log({err, replies});
-                    resolve(replies[1]); // TODO: add guard
-                });
+                    chosenIndex = Math.floor(Math.random() * sumWeights);
+                    this.client.lindex(
+                        [channel, this.ENTRY_TYPE].join(":"),
+                        chosenIndex,
+                        (indexError: Error, entry: string) => {
+                            if (indexError !== null) {
+                                reject(indexError);
+                            }
+
+                            resolve(entry);
+                    });
+            });
         });
     }
 
