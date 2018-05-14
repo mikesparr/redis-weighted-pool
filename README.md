@@ -1,13 +1,13 @@
-# Redis Priority Queue
-This is a simple Promise based multi-channel priority queue implementation that leverages Redis sorted set.
+# Redis Weighted Pool
+This is a simple Promise based multi-channel weighted round robin pool implementation that leverages Redis sorted set and list.
 
 # Requirements
 You will need Redis server running.
 
 # Installation
 ```bash
-npm install redis-priority-queue
-yarn add redis-priority-queue
+npm install redis-weighted-pool
+yarn add redis-weighted-pool
 ```
 
 # Test
@@ -20,13 +20,13 @@ The source was written in Typescript, yet it compiles to Javascript (`npm run bu
 
 ## Quick start (Node)
 ```javascript
-const queue = require('redis-priority-queue');
+const pool = require('redis-weighted-pool');
 
-const config = queue.RedisConfig("localhost", 6379, null, null);
+const config = pool.RedisConfig("localhost", 6379, null, null);
 
-const myQueue = new queue.RedisPriorityQueue(config);
+const myPool = new pool.RedisWeightedPool(config);
 
-myQueue.length("emptyQueue")
+myPool.length("myChannel")
   .then(result => {
     console.log({result});
   })
@@ -38,9 +38,9 @@ myQueue.length("emptyQueue")
 ## Optional with existing client
 If you already have a program with a `RedisClient` you can pass the client as an optional second parameter.
 ```javascript
-const myQueue = new queue.RedisPriorityQueue(null, client);
+const myPool = new pool.RedisWeightedPool(null, client);
 
-myQueue.length("emptyQueue")
+myPool.length("myChannel")
   .then(result => {
     console.log({result});
   })
@@ -52,7 +52,7 @@ myQueue.length("emptyQueue")
 ## Typescript
 ### Initialization
 ```typescript
-import {RedisConfig, IPriorityQueue, RedisPriorityQueue} from 'redis-priority-queue';
+import {RedisConfig, IWeightedPool, RedisWeightedPool} from 'redis-weighted-pool';
 
 let config: RedisConfig = new RedisConfig(
     "localhost",
@@ -61,7 +61,7 @@ let config: RedisConfig = new RedisConfig(
     null
 );
 
-let myQueue : IPriorityQueue<string> = new RedisPriorityQueue(config);
+let myPool : IWeightedPool<string> = new RedisWeightedPool(config);
 ```
 
 ### Add peers
