@@ -189,7 +189,7 @@ export class RedisWeightedPool implements IWeightedPool<string> {
                 throw new TypeError("Channel parameter must be a string");
             }
 
-            // remove list and hash for channel (key)
+            // remove list and sorted set for channel (Redis key)
             this.client.multi()
                 .del([channel, this.PEER_TYPE].join(":"))
                 .del([channel, this.ENTRY_TYPE].join(":"))

@@ -1,6 +1,6 @@
 {
   "name": "redis-weighted-pool",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Simple weighted round robin implementation using Redis list and sorted set",
   "main": "index.js",
   "scripts": {

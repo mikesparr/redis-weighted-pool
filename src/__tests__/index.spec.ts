@@ -270,7 +270,7 @@ describe("RedisWeightedPool", () => {
             const hitPercent: {[key: string]: number} = {};
             const tests: number = 1000;
             const variance: number = 1;
-            const testRuns: Array<Promise<any>> = [];
+            const testRuns: Array<Promise<string>> = [];
 
             // act
             for (let i = 0; i < tests; i++) {
