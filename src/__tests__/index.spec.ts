@@ -289,6 +289,8 @@ describe("RedisWeightedPool", () => {
 
                     // assert
                     expect(hitPercent[testEntry1]).toBeCloseTo(testWeight1 / 100, variance);
+                    expect(hitPercent[testEntry2]).toBeCloseTo(testWeight2 / 100, variance);
+                    expect(hitPercent[testEntry3]).toBeCloseTo(testWeight3 / 100, variance);
                     done();
                 });
         });
@@ -327,4 +329,4 @@ describe("RedisWeightedPool", () => {
         });
     }); // reset
 
-}); // redis priority Pool
+}); // redis weighted pool
