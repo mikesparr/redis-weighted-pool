@@ -77,6 +77,7 @@ var RedisWeightedPool = (function () {
     RedisWeightedPool.prototype.addPeer = function (channel, key, weight) {
         var _this = this;
         return new Promise(function (resolve, reject) {
+            var _a;
             if (typeof channel !== "string") {
                 throw new TypeError("Channel parameter must be a string");
             }
@@ -98,7 +99,6 @@ var RedisWeightedPool = (function () {
                 }
                 resolve();
             });
-            var _a;
         });
     };
     RedisWeightedPool.prototype.removePeer = function (channel, key) {
